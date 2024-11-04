@@ -1,0 +1,69 @@
+﻿1. Update Student Model
+2. Update db with migrations
+2. Support Uploading files
+3. Display files
+
+1. Models>Student.cs
+    public byte[]? Photo { get; set; }
+
+3. Views>Student>Create.cshtml
+    <form asp-action="Create" enctype="multipart/form-data">
+        <div class="form-group">
+            <label asp-for="Photo" class="control-label"></label>
+            <input type="file" id="Photo" name="Photo" />
+            <span asp-validation-for="Photo" class="text-danger"></span>
+        </div>
+3. Controllers>StudentController.cs
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("Id,Name,Major,DOB")] Student student, IFormFile Photo)
+    {
+        if (Photo == null || Photo.Length == 0)
+        {
+            return View(student);
+        }
+                    
+        if (ModelState.IsValid)
+        {
+            using var memoryStream = new MemoryStream();
+            Photo.CopyTo(memoryStream);
+            student.Photo = memoryStream.ToArray();
+            _context.Add(student);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        return View(student);
+    }
+
+4. Controllers>StudentController.cs
+    public async Task<IActionResult> GetStudentPhoto(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var student = await _context.Student.FindAsync(id);
+        if (student == null || student.Photo == null)
+        {
+            return NotFound();
+        }
+
+        var data = student.Photo;
+        return File(data, "image/jpg");
+    }
+
+4. Views>Student>Details.cshtml
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Student.Photo)
+    </dt>
+    <dd class="col-sm-10">
+        @if (Model.Student.Photo != null)
+        {
+            var base64 = Convert.ToBase64String(Model.Student.Photo);
+            var imgSrc = $"data:image/jpg;base64,{base64}";
+            <img src="@imgSrc" width="100" height="100" />
+            
+            <img src="@Url.Action("GetStudentPhoto", "Student", new { Model.Student.Id })" width="100" height="100" />
+        }
+    </dd>
