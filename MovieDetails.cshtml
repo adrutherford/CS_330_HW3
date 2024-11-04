@@ -1,0 +1,84 @@
+@model Fall2024_Assignment3_adrutherford.Models.MovieDetailsViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Movie</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Movie.Title)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Movie.Title)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Movie.Genre)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Movie.Genre)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Movie.Link)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Movie.Link)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Movie.releaseYear)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Movie.releaseYear)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Movie.Poster)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Movie.Poster != null && Model.Movie.Poster.Length > 0)
+            {
+                var base64Image = Convert.ToBase64String(Model.Movie.Poster);
+                var imageDataUrl = $"data:image/png;base64,{base64Image}";
+                @Html.Raw($"<img src=\"{imageDataUrl}\" alt=\"Movie Poster\" style=\"max-width: 200px; max-height: 200px;\" />")
+            }
+            else
+            {
+                <span>No photo available.</span>
+            }
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Movie.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+<h5>Actors</h5>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Actors)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Actors)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-controller="Course" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-controller="Course" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-controller="Course" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<h5>Latest Reviews</h5>
